@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Краснодар · 8–9 октября 2026</title>
+<title>Краснодар · 8–10 октября 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-   --bg: #F8F2E6;
---bg-soft: #F1E8D6;
---card: #FEFCF8;
---card-line: #ECE1CA;
+    --bg: #F8F2E6;
+    --bg-soft: #F1E8D6;
+    --card: #FEFCF8;
+    --card-line: #ECE1CA;
     --ink: #2B2118;
     --ink-soft: #7A6B58;
     --burgundy: #7A1F30;
@@ -256,42 +256,334 @@
   }
   .budget-row{
     display:flex;
-    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
     padding: 11px 0;
     font-size: 14px;
     border-bottom: 1px solid var(--card-line);
   }
-  .budget-row:last-child{ border-bottom: none; }
-  .budget-row .name{ color: var(--ink); }
-  .budget-row .val{ color: var(--burgundy); font-weight: 600; }
-  .budget-row.total .name, .budget-row.total .val{
-    font-weight: 700;
-    color: var(--burgundy-deep);
+  .budget-row .paid-check{
+    flex-shrink: 0;
+    width: 17px;
+    height: 17px;
+    accent-color: var(--burgundy);
+    cursor: pointer;
   }
+  .budget-row .name{ flex:1; color: var(--ink); }
+  .budget-row .val-wrap{
+    display:flex;
+    align-items:center;
+    flex-shrink: 0;
+  }
+  .budget-row .val-input{
+    width: 62px;
+    text-align: right;
+    border: none;
+    background: transparent;
+    font-weight: 600;
+    color: var(--burgundy);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    padding: 3px 4px;
+    border-radius: 6px;
+  }
+  .budget-row .val-input:focus{
+    outline: none;
+    background: var(--bg-soft);
+  }
+  .budget-row .cur{ color: var(--burgundy); font-weight:600; margin-left:1px; }
+  .budget-row.is-paid .name{ text-decoration: line-through; color: var(--ink-soft); }
+  .budget-row.is-paid .val-input, .budget-row.is-paid .cur{ color: var(--ink-soft); }
+  .budget-row.total{ font-weight: 700; }
+  .budget-row.total .name{ color: var(--burgundy-deep); }
+  .budget-row.total .val{ color: var(--burgundy-deep); font-weight: 700; }
 
-  .budget-bars{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 14px;
+  .unallocated-line{
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: -6px 0 16px;
   }
-  .bar-card{
+  .unallocated-line span{ font-weight: 700; color: var(--burgundy); }
+  .unallocated-line span.negative{ color: #A31515; }
+
+  .cat-list{ margin-bottom: 14px; }
+  .cat-card{
     background: var(--card);
     border: 1px solid var(--card-line);
-    border-radius: 12px;
-    padding: 12px 14px;
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
   }
-  .bar-card .name{
-    font-size: 12.5px;
-    color: var(--ink-soft);
-    margin-bottom: 4px;
+  .cat-head{
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
   }
-  .bar-card .amt{
+  .cat-name{
     font-family: 'PT Serif', serif;
     font-weight: 700;
-    font-size: 17px;
-    color: var(--burgundy);
+    font-size: 16px;
+    color: var(--burgundy-deep);
   }
+  .cat-budget-wrap{
+    font-size: 12px;
+    color: var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap: 4px;
+  }
+  .cat-budget-input{
+    width: 56px;
+    text-align: right;
+    border: none;
+    background: transparent;
+    font-weight: 600;
+    color: var(--burgundy);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    padding: 2px 4px;
+    border-radius: 6px;
+  }
+  .cat-budget-input:focus{ outline: 1px solid var(--burgundy-soft); background: #fff; }
+  .cat-stats{
+    display:flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 9px 12px;
+    background: var(--bg-soft);
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+  .cat-stats .cat-spent{ color: var(--ink); font-weight: 600; }
+  .cat-stats .cat-left{ color: var(--burgundy); font-weight: 700; }
+  .cat-stats .cat-left.negative{ color: #A31515; }
+  .cat-expenses{
+    list-style: none;
+    margin: 0 0 10px;
+    padding: 0;
+  }
+  .cat-expenses li{
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    gap: 8px;
+    font-size: 12.5px;
+    padding: 5px 0;
+    border-bottom: 1px dashed var(--card-line);
+    color: var(--ink-soft);
+  }
+  .cat-expenses li:last-child{ border-bottom: none; }
+  .cat-expenses .exp-note{ flex:1; }
+  .cat-expenses .exp-amt{ color: var(--burgundy); font-weight: 600; flex-shrink:0; }
+  .cat-expenses .exp-del{
+    flex-shrink:0;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 1px solid var(--card-line);
+    background: var(--card);
+    color: var(--burgundy);
+    font-size: 11px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .cat-add-row{
+    display:flex;
+    gap: 6px;
+  }
+  .cat-add-row .cat-expense-input{
+    width: 68px;
+    flex-shrink:0;
+    border: 1px solid var(--card-line);
+    background: var(--card);
+    border-radius: 8px;
+    padding: 6px 8px;
+    font-size: 12.5px;
+    font-family: 'Inter', sans-serif;
+  }
+  .cat-add-row .cat-expense-note{
+    flex:1;
+    min-width: 0;
+    border: 1px solid var(--card-line);
+    background: var(--card);
+    border-radius: 8px;
+    padding: 6px 8px;
+    font-size: 12.5px;
+    font-family: 'Inter', sans-serif;
+  }
+  .cat-add-row input:focus{ outline: none; border-color: var(--burgundy-soft); }
+  .cat-expense-btn{
+    flex-shrink:0;
+    width: 32px;
+    border: none;
+    background: var(--burgundy);
+    color: #F3E6DA;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .cur{ color: var(--burgundy); font-weight:600; }
+
+  .stop-controls{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  input.stop-time{
+    border: none;
+    outline: none;
+    width: 108px;
+    flex-shrink: 0;
+    margin-bottom: 0;
+  }
+  .transit-toggle{
+    display:flex;
+    align-items:center;
+    gap: 4px;
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--ink-soft);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .transit-toggle input{
+    width: 12px; height: 12px;
+    accent-color: var(--burgundy);
+    cursor: pointer;
+  }
+  .stop-del{
+    flex-shrink: 0;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1px solid var(--card-line);
+    background: var(--card);
+    color: var(--burgundy);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .stop-card input.stop-title,
+  .stop-card input.stop-desc{
+    display:block;
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: 'Inter', sans-serif;
+    padding: 2px 0;
+  }
+  .stop-addr-wrap{
+    display:flex;
+    align-items:center;
+    gap: 4px;
+    margin-top: 4px;
+  }
+  .stop-addr-wrap .addr-icon{ font-size: 11px; color: var(--burgundy); flex-shrink:0; }
+  .stop-card input.stop-addr{
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: var(--burgundy);
+    letter-spacing: 0.01em;
+    padding: 2px 0;
+  }
+  .stop-card input:focus, input.stop-time:focus{
+    outline: 1px solid var(--burgundy-soft);
+    background: #fff;
+    border-radius: 6px;
+  }
+  .add-event-btn{
+    display:block;
+    width: 100%;
+    margin: 10px 0 0;
+    padding: 10px;
+    border: 1.5px dashed var(--burgundy-soft);
+    border-radius: 12px;
+    background: transparent;
+    color: var(--burgundy);
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 13.5px;
+    cursor: pointer;
+  }
+  .add-event-btn:hover{ background: var(--bg-soft); }
+
+  .luggage-item-input{
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 13.5px;
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    padding: 2px 0;
+  }
+  .luggage-item-input:focus{
+    outline: 1px solid var(--burgundy-soft);
+    background: #fff;
+    border-radius: 6px;
+  }
+  .luggage-del{
+    flex-shrink: 0;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 1px solid var(--card-line);
+    background: var(--card);
+    color: var(--burgundy);
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .luggage-add-row{
+    display:flex;
+    gap: 8px;
+    margin: 10px 0 4px;
+  }
+  .luggage-add-input{
+    flex: 1;
+    border: 1px solid var(--card-line);
+    background: var(--card);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+  }
+  .luggage-add-input:focus{ outline: none; border-color: var(--burgundy-soft); }
+  .luggage-add-btn{
+    flex-shrink: 0;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: var(--burgundy);
+    color: #F3E6DA;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .reset-line{
+    text-align: right;
+    margin-top: -6px;
+    margin-bottom: 18px;
+  }
+  .reset-line button{
+    background: none;
+    border: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: var(--ink-soft);
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+  }
+  .buffer-warning{ color: var(--burgundy); font-weight: 600; }
 
   .budget-fine{
     font-size: 12.5px;
@@ -327,6 +619,9 @@
     margin:0; padding:0;
   }
   .luggage-card li{
+    display:flex;
+    align-items:center;
+    gap: 8px;
     font-size: 13.5px;
     padding: 6px 0 6px 24px;
     position: relative;
@@ -398,7 +693,6 @@
 
   @media (max-width: 420px){
     .masthead h1{ font-size: 34px; }
-    .budget-bars{ grid-template-columns: 1fr 1fr; }
     .luggage-grid{ grid-template-columns: 1fr; }
   }
 </style>
@@ -409,7 +703,7 @@
   <div class="masthead">
     <div class="kicker">МАРШРУТНЫЙ ЛИСТ</div>
     <h1>Краснодар</h1>
-    <div class="sub">8–9 октября 2026</div>
+    <div class="sub">8–10 октября 2026</div>
     <div class="names">Даша + Даня</div>
   </div>
 
@@ -422,121 +716,8 @@
     </div>
   </div>
 
-  <div class="timeline">
-
-    <div class="stop">
-      <div class="stop-time">11:00</div>
-      <div class="stop-card">
-        <div class="stop-title">Краснодар‑1</div>
-        <div class="stop-desc">Прибытие в Краснодар</div>
-      </div>
-    </div>
-
-    <div class="stop transit">
-      <div class="stop-time">11:00–11:25</div>
-      <div class="stop-card">
-        <div class="stop-title">→ Домик Джонни</div>
-      </div>
-    </div>
-
-    <div class="stop">
-      <div class="stop-time">11:25–11:45</div>
-      <div class="stop-card">
-        <div class="stop-title">Домик Джонни</div>
-        <div class="stop-desc">Забираем блокнот для штампов</div>
-        <div class="stop-addr">ул. Максима Горького, 85А</div>
-      </div>
-    </div>
-
-    <div class="stop">
-      <div class="stop-time">11:45–13:40</div>
-      <div class="stop-card">
-        <div class="stop-title">Исторический центр</div>
-        <div class="stop-desc">Гуляем по центру, собираем первые штампики</div>
-      </div>
-    </div>
-
-    <div class="stop transit">
-      <div class="stop-time">13:40–14:00</div>
-      <div class="stop-card">
-        <div class="stop-title">→ ЖК «Любимово»</div>
-      </div>
-    </div>
-
-    <div class="stop">
-      <div class="stop-time">14:00–14:20</div>
-      <div class="stop-card">
-        <div class="stop-title">Апартаменты</div>
-        <div class="stop-desc">Заселение, оставляем вещи</div>
-      </div>
-    </div>
-
-    <div class="stop transit">
-      <div class="stop-time">14:20–14:40</div>
-      <div class="stop-card">
-        <div class="stop-title">→ Парк «Краснодар»</div>
-      </div>
-    </div>
-
-    <div class="stop">
-      <div class="stop-time">14:40–16:30</div>
-      <div class="stop-card">
-        <div class="stop-title">Парк «Краснодар»</div>
-        <div class="stop-desc">Прогулка</div>
-      </div>
-    </div>
-
-    <div class="stop">
-      <div class="stop-time">16:30–18:15</div>
-      <div class="stop-card">
-        <div class="stop-title">Японский сад + Kissaten</div>
-        <div class="stop-desc">Прогулка, обед, кофе</div>
-        <div class="stop-addr">ул. Разведчика Леонова, 7Б</div>
-      </div>
-    </div>
-
-    <div class="stop">
-      <div class="stop-time">18:15–20:00</div>
-      <div class="stop-card">
-        <div class="stop-title">Парк «Краснодар»</div>
-        <div class="stop-desc">Возвращаемся и продолжаем прогулку</div>
-      </div>
-    </div>
-
-    <div class="stop">
-      <div class="stop-time">20:00–21:30</div>
-      <div class="stop-card">
-        <div class="stop-title">Ресторан «Краснодар»</div>
-        <div class="stop-desc">Ужин + день рождения Даниила</div>
-        <div class="stop-addr">ул. Разведчика Леонова, 4</div>
-      </div>
-    </div>
-
-    <div class="stop transit">
-      <div class="stop-time">21:30–22:00</div>
-      <div class="stop-card">
-        <div class="stop-title">→ ТРЦ «Галерея»</div>
-      </div>
-    </div>
-
-    <div class="stop">
-      <div class="stop-time">22:00</div>
-      <div class="stop-card">
-        <div class="stop-title">KARO</div>
-        <div class="stop-desc">Кино</div>
-        <div class="stop-addr">ул. Головатого, 313</div>
-      </div>
-    </div>
-
-    <div class="stop transit">
-      <div class="stop-time">после кино</div>
-      <div class="stop-card">
-        <div class="stop-title">→ Любимово</div>
-        <div class="stop-desc" style="margin-top:2px;">Возвращаемся в апартаменты</div>
-      </div>
-    </div>
-
-  </div>
+  <div class="timeline" id="timeline-1"></div>
+  <button type="button" class="add-event-btn" data-day="1">+ Добавить событие</button>
 
   <div class="divider"></div>
 
@@ -549,110 +730,176 @@
     </div>
   </div>
 
-  <div class="timeline">
+  <div class="timeline" id="timeline-2"></div>
+  <button type="button" class="add-event-btn" data-day="2">+ Добавить событие</button>
 
-    <div class="stop">
-      <div class="stop-time">09:30</div>
-      <div class="stop-card">
-        <div class="stop-title">Апартаменты</div>
-        <div class="stop-desc">Подъём, сборы</div>
-      </div>
+  <div class="divider"></div>
+
+  <!-- ================= DAY 3 ================= -->
+  <div class="day-head">
+    <div class="num">3</div>
+    <div class="meta">
+      <div class="date">10 октября</div>
+      <div class="weekday">суббота</div>
     </div>
-
-    <div class="stop transit">
-      <div class="stop-time">10:00</div>
-      <div class="stop-card">
-        <div class="stop-title">→ Краснодар‑1</div>
-        <div class="stop-desc" style="margin-top:2px;">Выселяемся и едем на ЖД</div>
-      </div>
-    </div>
-
-    <div class="stop">
-      <div class="stop-time">10:30–10:45</div>
-      <div class="stop-card">
-        <div class="stop-title">Камера хранения</div>
-        <div class="stop-desc">Оставляем вещи</div>
-      </div>
-    </div>
-
-    <div class="stop">
-      <div class="stop-time">10:45–16:00</div>
-      <div class="stop-card">
-        <div class="stop-title">Центр Краснодара</div>
-        <div class="stop-desc">Штампики, музеи, прогулки, кофейни</div>
-      </div>
-    </div>
-
-    <div class="stop transit">
-      <div class="stop-time">16:00–16:30</div>
-      <div class="stop-card">
-        <div class="stop-title">→ OZ Mall</div>
-      </div>
-    </div>
-
-    <div class="stop">
-      <div class="stop-time">16:30–19:30</div>
-      <div class="stop-card">
-        <div class="stop-title">OZ Mall</div>
-        <div class="stop-desc">Шопинг + игры</div>
-        <div class="stop-addr">ул. Крылатая, 2</div>
-      </div>
-    </div>
-
-    <div class="stop transit">
-      <div class="stop-time">19:30–20:00</div>
-      <div class="stop-card">
-        <div class="stop-title">→ Краснодар‑1</div>
-        <div class="stop-desc" style="margin-top:2px;">Едем обратно на вокзал</div>
-      </div>
-    </div>
-
-    <div class="stop">
-      <div class="stop-time">20:00</div>
-      <div class="stop-card">
-        <div class="stop-title">Краснодар‑1</div>
-        <div class="stop-desc">Забираем вещи → отъезд</div>
-      </div>
-    </div>
-
   </div>
+
+  <div class="timeline" id="timeline-3"></div>
+  <button type="button" class="add-event-btn" data-day="3">+ Добавить событие</button>
 
   <div class="divider"></div>
 
   <!-- ================= BUDGET ================= -->
-  <div class="section-head">Бюджет</div>
-  <div class="section-note">На поездку заложено 50 000 ₽</div>
+  <div class="section-head">Обязательные траты</div>
+  <div class="section-note">Отмечайте галочкой, что уже оплачено</div>
 
   <div class="budget-total">
     <div class="left">
-      <div class="label">Запланировано</div>
-      <div class="amount">20 400 ₽</div>
+      <div class="label">Итого</div>
+      <div class="amount" id="planned-total">16 300 ₽</div>
     </div>
     <div class="right">
-      <div class="label">Остаётся</div>
-      <div class="amount">29 600 ₽</div>
+      <div class="label">Осталось оплатить</div>
+      <div class="amount" id="unpaid-total">12 000 ₽</div>
     </div>
   </div>
 
-  <div class="budget-list">
-    <div class="budget-row"><span class="name">Отель</span><span class="val">5 000 ₽</span></div>
-    <div class="budget-row"><span class="name">Билеты обратно</span><span class="val">3 000 ₽</span></div>
-    <div class="budget-row"><span class="name">Сертификат Kissaten</span><span class="val">3 000 ₽</span></div>
-    <div class="budget-row"><span class="name">Предоплата «Краснодар»</span><span class="val">2 000 ₽</span></div>
-    <div class="budget-row"><span class="name">Кино</span><span class="val">1 400 ₽</span></div>
-    <div class="budget-row"><span class="name">Сувениры</span><span class="val">3 000 ₽</span></div>
-    <div class="budget-row"><span class="name">Музеи и билеты</span><span class="val">3 000 ₽</span></div>
-    <div class="budget-row total"><span class="name">Итого запланировано</span><span class="val">20 400 ₽</span></div>
+  <div class="reset-line"><button type="button" id="reset-budget">Сбросить все изменения к исходным</button></div>
+
+  <div class="budget-list" id="budget-list">
+    <div class="budget-row" data-id="hotel" data-default="6000" data-default-paid="false">
+      <input type="checkbox" class="paid-check">
+      <span class="name">Отель (2 ночи × 3 000 ₽)</span>
+      <span class="val-wrap"><input type="text" inputmode="numeric" class="val-input" value="6 000"><span class="cur">₽</span></span>
+    </div>
+    <div class="budget-row" data-id="tickets" data-default="3000" data-default-paid="false">
+      <input type="checkbox" class="paid-check">
+      <span class="name">Билеты обратно</span>
+      <span class="val-wrap"><input type="text" inputmode="numeric" class="val-input" value="3 000"><span class="cur">₽</span></span>
+    </div>
+    <div class="budget-row" data-id="kissaten" data-default="3000" data-default-paid="false">
+      <input type="checkbox" class="paid-check">
+      <span class="name">Сертификат Kissaten</span>
+      <span class="val-wrap"><input type="text" inputmode="numeric" class="val-input" value="3 000"><span class="cur">₽</span></span>
+    </div>
+    <div class="budget-row" data-id="restaurant" data-default="2000" data-default-paid="true">
+      <input type="checkbox" class="paid-check">
+      <span class="name">Предоплата «Краснодар»</span>
+      <span class="val-wrap"><input type="text" inputmode="numeric" class="val-input" value="2 000"><span class="cur">₽</span></span>
+    </div>
+    <div class="budget-row" data-id="excursion" data-default="2300" data-default-paid="true">
+      <input type="checkbox" class="paid-check">
+      <span class="name">Стендап‑экскурсия</span>
+      <span class="val-wrap"><input type="text" inputmode="numeric" class="val-input" value="2 300"><span class="cur">₽</span></span>
+    </div>
   </div>
 
-  <div class="budget-bars">
-    <div class="bar-card"><div class="name">Еда</div><div class="amt">~15 000 ₽</div></div>
-    <div class="bar-card"><div class="name">Транспорт</div><div class="amt">~5 000 ₽</div></div>
-    <div class="bar-card"><div class="name">Шопинг</div><div class="amt">~7 000 ₽</div></div>
-    <div class="bar-card"><div class="name">Запас</div><div class="amt">~2 600 ₽</div></div>
+  <div class="divider"></div>
+
+  <div class="section-head">Оставшиеся деньги</div>
+  <div class="section-note">Из общего бюджета за вычетом обязательных трат — вносите фактические покупки по категориям</div>
+
+  <div class="budget-total">
+    <div class="left">
+      <div class="label">Всего</div>
+      <div class="amount" id="remaining-total">33 700 ₽</div>
+    </div>
+    <div class="right">
+      <div class="label">Осталось</div>
+      <div class="amount" id="overall-left">33 700 ₽</div>
+    </div>
   </div>
 
-  <div class="budget-fine">Предоплата ресторана уже учтена. Финальный счёт может быть выше.</div>
+  <div class="unallocated-line">Не распределено по категориям: <span id="unallocated-amount">1 700 ₽</span></div>
+
+  <div class="cat-list" id="cat-list">
+    <div class="cat-card" data-id="food" data-default="10000">
+      <div class="cat-head">
+        <div class="cat-name">Еда</div>
+        <div class="cat-budget-wrap">бюджет <input type="text" inputmode="numeric" class="cat-budget-input" value="10 000"><span class="cur">₽</span></div>
+      </div>
+      <div class="cat-stats">
+        <div>Потрачено <span class="cat-spent">0 ₽</span></div>
+        <div>Осталось <span class="cat-left">10 000 ₽</span></div>
+      </div>
+      <ul class="cat-expenses"></ul>
+      <div class="cat-add-row">
+        <input type="text" inputmode="numeric" class="cat-expense-input" placeholder="Сумма">
+        <input type="text" class="cat-expense-note" placeholder="На что (необязательно)">
+        <button type="button" class="cat-expense-btn">+</button>
+      </div>
+    </div>
+
+    <div class="cat-card" data-id="transport" data-default="5000">
+      <div class="cat-head">
+        <div class="cat-name">Транспорт</div>
+        <div class="cat-budget-wrap">бюджет <input type="text" inputmode="numeric" class="cat-budget-input" value="5 000"><span class="cur">₽</span></div>
+      </div>
+      <div class="cat-stats">
+        <div>Потрачено <span class="cat-spent">0 ₽</span></div>
+        <div>Осталось <span class="cat-left">5 000 ₽</span></div>
+      </div>
+      <ul class="cat-expenses"></ul>
+      <div class="cat-add-row">
+        <input type="text" inputmode="numeric" class="cat-expense-input" placeholder="Сумма">
+        <input type="text" class="cat-expense-note" placeholder="На что (необязательно)">
+        <button type="button" class="cat-expense-btn">+</button>
+      </div>
+    </div>
+
+    <div class="cat-card" data-id="shopping" data-default="9600">
+      <div class="cat-head">
+        <div class="cat-name">Шопинг</div>
+        <div class="cat-budget-wrap">бюджет <input type="text" inputmode="numeric" class="cat-budget-input" value="9 600"><span class="cur">₽</span></div>
+      </div>
+      <div class="cat-stats">
+        <div>Потрачено <span class="cat-spent">0 ₽</span></div>
+        <div>Осталось <span class="cat-left">9 600 ₽</span></div>
+      </div>
+      <ul class="cat-expenses"></ul>
+      <div class="cat-add-row">
+        <input type="text" inputmode="numeric" class="cat-expense-input" placeholder="Сумма">
+        <input type="text" class="cat-expense-note" placeholder="На что (необязательно)">
+        <button type="button" class="cat-expense-btn">+</button>
+      </div>
+    </div>
+
+    <div class="cat-card" data-id="entertainment" data-default="4400">
+      <div class="cat-head">
+        <div class="cat-name">Кино и музеи</div>
+        <div class="cat-budget-wrap">бюджет <input type="text" inputmode="numeric" class="cat-budget-input" value="4 400"><span class="cur">₽</span></div>
+      </div>
+      <div class="cat-stats">
+        <div>Потрачено <span class="cat-spent">0 ₽</span></div>
+        <div>Осталось <span class="cat-left">4 400 ₽</span></div>
+      </div>
+      <ul class="cat-expenses"></ul>
+      <div class="cat-add-row">
+        <input type="text" inputmode="numeric" class="cat-expense-input" placeholder="Сумма">
+        <input type="text" class="cat-expense-note" placeholder="На что (необязательно)">
+        <button type="button" class="cat-expense-btn">+</button>
+      </div>
+    </div>
+
+    <div class="cat-card" data-id="souvenirs" data-default="3000">
+      <div class="cat-head">
+        <div class="cat-name">Сувениры</div>
+        <div class="cat-budget-wrap">бюджет <input type="text" inputmode="numeric" class="cat-budget-input" value="3 000"><span class="cur">₽</span></div>
+      </div>
+      <div class="cat-stats">
+        <div>Потрачено <span class="cat-spent">0 ₽</span></div>
+        <div>Осталось <span class="cat-left">3 000 ₽</span></div>
+      </div>
+      <ul class="cat-expenses"></ul>
+      <div class="cat-add-row">
+        <input type="text" inputmode="numeric" class="cat-expense-input" placeholder="Сумма">
+        <input type="text" class="cat-expense-note" placeholder="На что (необязательно)">
+        <button type="button" class="cat-expense-btn">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="budget-fine">Ресторан и стендап‑экскурсия уже забронированы и оплачены — отметьте галочкой ✓ то, что оплачено. Отдельно на руках 2 000 ₽ возвратного залога за апартаменты — не входит в расчёт, это буфер.</div>
 
   <div class="divider"></div>
 
@@ -663,54 +910,43 @@
   <div class="luggage-grid">
     <div class="luggage-card">
       <h4>Даша</h4>
-      <ul>
-        <li>Брюки</li>
-        <li>2 футболки</li>
-        <li>Блестящий комбинезон</li>
-        <li>2 пары трусов</li>
-        <li>2 пары носков</li>
-        <li>Лифчик</li>
-        <li>Топ</li>
-        <li>Сумочка</li>
-      </ul>
+      <ul id="luggage-dasha" class="luggage-ul"></ul>
+      <div class="luggage-add-row">
+        <input type="text" class="luggage-add-input" data-cat="dasha" placeholder="Добавить пункт">
+        <button type="button" class="luggage-add-btn" data-cat="dasha">+</button>
+      </div>
     </div>
     <div class="luggage-card">
       <h4>Даня</h4>
-      <ul>
-        <li>Брюки</li>
-        <li>2 футболки</li>
-        <li>2 пары трусов</li>
-        <li>2 пары носков</li>
-        <li>Рюкзак</li>
-      </ul>
+      <ul id="luggage-dania" class="luggage-ul"></ul>
+      <div class="luggage-add-row">
+        <input type="text" class="luggage-add-input" data-cat="dania" placeholder="Добавить пункт">
+        <button type="button" class="luggage-add-btn" data-cat="dania">+</button>
+      </div>
     </div>
     <div class="luggage-card">
       <h4>Уход</h4>
-      <ul>
-        <li>Тревел‑набор</li>
-        <li>Дезодорант</li>
-        <li>Сухой шампунь</li>
-      </ul>
+      <ul id="luggage-care" class="luggage-ul"></ul>
+      <div class="luggage-add-row">
+        <input type="text" class="luggage-add-input" data-cat="care" placeholder="Добавить пункт">
+        <button type="button" class="luggage-add-btn" data-cat="care">+</button>
+      </div>
     </div>
     <div class="luggage-card">
       <h4>Техника</h4>
-      <ul>
-        <li>Зарядники</li>
-        <li>Приставка для ТВ</li>
-        <li>Телефоны</li>
-        <li>Пауэрбанк</li>
-        <li>Штатив</li>
-        <li>Свет</li>
-      </ul>
+      <ul id="luggage-tech" class="luggage-ul"></ul>
+      <div class="luggage-add-row">
+        <input type="text" class="luggage-add-input" data-cat="tech" placeholder="Добавить пункт">
+        <button type="button" class="luggage-add-btn" data-cat="tech">+</button>
+      </div>
     </div>
     <div class="luggage-card wide">
       <h4>Документы</h4>
-      <ul>
-        <li>Документы</li>
-        <li>Банковские карты</li>
-        <li>Билеты</li>
-        <li>Ваучеры</li>
-      </ul>
+      <ul id="luggage-docs" class="luggage-ul"></ul>
+      <div class="luggage-add-row">
+        <input type="text" class="luggage-add-input" data-cat="docs" placeholder="Добавить пункт">
+        <button type="button" class="luggage-add-btn" data-cat="docs">+</button>
+      </div>
     </div>
   </div>
 
@@ -780,8 +1016,8 @@
 
     <a class="link-card" href="https://felicina.ru/" target="_blank" rel="noopener">
       <div class="link-text">
-        <div class="title">Felicina</div>
-        <div class="desc">Место в центре города</div>
+        <div class="title">Музей‑заповедник им. Фелицына</div>
+        <div class="desc">Археология и история Кубани, ул. Гимназическая, 67</div>
       </div>
       <div class="go">↗</div>
     </a>
@@ -789,7 +1025,7 @@
     <a class="link-card" href="http://kovalenkomuseum.ru/" target="_blank" rel="noopener">
       <div class="link-text">
         <div class="title">Музей им. Коваленко</div>
-        <div class="desc">Художественный музей</div>
+        <div class="desc">Художественный музей, ул. Красная, 13</div>
       </div>
       <div class="go">↗</div>
     </a>
@@ -807,5 +1043,451 @@
   <footer>Хорошей поездки ♡</footer>
 
 </div>
+<script>
+(function(){
+  var TOTAL_BUDGET = 50000;
+  var STORAGE_KEY = 'krasnodar-budget-2026';
+  var CAT_KEY = 'krasnodar-categories-2026';
+
+  function parseNum(str){
+    var n = parseInt(String(str).replace(/[^\d-]/g, ''), 10);
+    return isNaN(n) ? 0 : n;
+  }
+  function fmt(n){
+    return n.toLocaleString('ru-RU');
+  }
+  function loadJSON(key, fallback){
+    try{
+      var raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    }catch(e){ return fallback; }
+  }
+  function saveJSON(key, val){
+    try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+  }
+
+  var listRows = Array.prototype.slice.call(document.querySelectorAll('#budget-list .budget-row[data-id]'));
+  var state = loadJSON(STORAGE_KEY, {});
+  state.list = state.list || {};
+
+  var defaultCats = { food: {budget:10000, expenses:[]}, transport: {budget:5000, expenses:[]}, shopping: {budget:9600, expenses:[]}, entertainment: {budget:4400, expenses:[]}, souvenirs: {budget:3000, expenses:[]} };
+  var catsData = loadJSON(CAT_KEY, null) || JSON.parse(JSON.stringify(defaultCats));
+
+  function saveState(){ saveJSON(STORAGE_KEY, state); }
+  function saveCats(){ saveJSON(CAT_KEY, catsData); }
+
+  function initRow(row){
+    var id = row.dataset.id;
+    var checkbox = row.querySelector('.paid-check');
+    var input = row.querySelector('.val-input');
+    var defaultAmt = parseNum(row.dataset.default);
+    var defaultPaid = row.dataset.defaultPaid === 'true';
+    var saved = state.list[id];
+    var amount = saved && typeof saved.amount === 'number' ? saved.amount : defaultAmt;
+    var paid = saved && typeof saved.paid === 'boolean' ? saved.paid : defaultPaid;
+    input.value = fmt(amount);
+    checkbox.checked = paid;
+    row.classList.toggle('is-paid', paid);
+
+    checkbox.addEventListener('change', function(){
+      state.list[id] = { amount: parseNum(input.value), paid: checkbox.checked };
+      row.classList.toggle('is-paid', checkbox.checked);
+      saveState();
+      recalc();
+    });
+    input.addEventListener('input', function(){
+      state.list[id] = { amount: parseNum(input.value), paid: checkbox.checked };
+      saveState();
+      recalc();
+    });
+    input.addEventListener('blur', function(){
+      input.value = fmt(parseNum(input.value));
+    });
+  }
+
+  function renderCatExpenses(catId){
+    var card = document.querySelector('.cat-card[data-id="' + catId + '"]');
+    var ul = card.querySelector('.cat-expenses');
+    ul.innerHTML = '';
+    catsData[catId].expenses.forEach(function(exp, idx){
+      var li = document.createElement('li');
+      var note = document.createElement('span');
+      note.className = 'exp-note';
+      note.textContent = exp.note ? exp.note : 'без описания';
+      var amt = document.createElement('span');
+      amt.className = 'exp-amt';
+      amt.textContent = fmt(exp.amount) + ' ₽';
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'exp-del';
+      del.textContent = '×';
+      del.title = 'Удалить трату';
+      del.addEventListener('click', function(){
+        catsData[catId].expenses.splice(idx, 1);
+        saveCats();
+        renderCatExpenses(catId);
+        recalc();
+      });
+      li.appendChild(note);
+      li.appendChild(amt);
+      li.appendChild(del);
+      ul.appendChild(li);
+    });
+  }
+
+  function initCat(card){
+    var id = card.dataset.id;
+    var budgetInput = card.querySelector('.cat-budget-input');
+    var defaultAmt = parseNum(card.dataset.default);
+    if(typeof catsData[id].budget !== 'number'){ catsData[id].budget = defaultAmt; }
+    budgetInput.value = fmt(catsData[id].budget);
+
+    budgetInput.addEventListener('input', function(){
+      catsData[id].budget = parseNum(budgetInput.value);
+      saveCats();
+      recalc();
+    });
+    budgetInput.addEventListener('blur', function(){
+      budgetInput.value = fmt(catsData[id].budget);
+    });
+
+    renderCatExpenses(id);
+
+    var amountInput = card.querySelector('.cat-expense-input');
+    var noteInput = card.querySelector('.cat-expense-note');
+    var addBtn = card.querySelector('.cat-expense-btn');
+
+    function addExpense(){
+      var amt = parseNum(amountInput.value);
+      if(amt <= 0) return;
+      catsData[id].expenses.push({ amount: amt, note: noteInput.value.trim() });
+      saveCats();
+      renderCatExpenses(id);
+      amountInput.value = '';
+      noteInput.value = '';
+      amountInput.focus();
+      recalc();
+    }
+
+    addBtn.addEventListener('click', addExpense);
+    amountInput.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); addExpense(); } });
+    noteInput.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); addExpense(); } });
+  }
+
+  function recalc(){
+    var plannedTotal = 0;
+    var unpaidTotal = 0;
+    listRows.forEach(function(row){
+      var input = row.querySelector('.val-input');
+      var checkbox = row.querySelector('.paid-check');
+      var amt = parseNum(input.value);
+      plannedTotal += amt;
+      if(!checkbox.checked){ unpaidTotal += amt; }
+    });
+    var remainingFixed = TOTAL_BUDGET - plannedTotal;
+
+    var spentSum = 0;
+    Object.keys(catsData).forEach(function(id){
+      var card = document.querySelector('.cat-card[data-id="' + id + '"]');
+      var spent = catsData[id].expenses.reduce(function(sum, e){ return sum + e.amount; }, 0);
+      spentSum += spent;
+      var left = catsData[id].budget - spent;
+      card.querySelector('.cat-spent').textContent = fmt(spent) + ' ₽';
+      var leftEl = card.querySelector('.cat-left');
+      leftEl.textContent = fmt(left) + ' ₽';
+      leftEl.classList.toggle('negative', left < 0);
+    });
+
+    var overallLeft = remainingFixed - spentSum;
+    var categoryBudgetSum = 0;
+    Object.keys(catsData).forEach(function(id){ categoryBudgetSum += catsData[id].budget; });
+    var unallocated = remainingFixed - categoryBudgetSum;
+
+    document.getElementById('planned-total').textContent = fmt(plannedTotal) + ' ₽';
+    document.getElementById('unpaid-total').textContent = fmt(unpaidTotal) + ' ₽';
+    document.getElementById('remaining-total').textContent = fmt(remainingFixed) + ' ₽';
+    var overallEl = document.getElementById('overall-left');
+    overallEl.textContent = fmt(overallLeft) + ' ₽';
+    overallEl.style.color = overallLeft < 0 ? '#F3D6D6' : '';
+    var unallocEl = document.getElementById('unallocated-amount');
+    unallocEl.textContent = fmt(unallocated) + ' ₽';
+    unallocEl.classList.toggle('negative', unallocated < 0);
+  }
+
+  listRows.forEach(initRow);
+  Array.prototype.slice.call(document.querySelectorAll('.cat-card[data-id]')).forEach(initCat);
+  recalc();
+
+  document.getElementById('reset-budget').addEventListener('click', function(){
+    try{
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(CAT_KEY);
+    }catch(e){}
+    location.reload();
+  });
+})();
+</script>
+<script>
+(function(){
+  var DAYS_KEY = 'krasnodar-days-2026';
+  var LUGGAGE_KEY = 'krasnodar-luggage-2026';
+
+  var defaultDays = {
+    1: [
+      {time:"11:00", title:"Краснодар‑1", desc:"Прибытие в Краснодар", addr:"", transit:false},
+      {time:"11:00–11:25", title:"→ Домик Джонни", desc:"", addr:"", transit:true},
+      {time:"11:25–11:45", title:"Домик Джонни", desc:"Забираем блокнот для штампов", addr:"ул. Максима Горького, 85А", transit:false},
+      {time:"11:45–13:40", title:"Исторический центр", desc:"Гуляем по центру, собираем первые штампики", addr:"", transit:false},
+      {time:"13:40–14:00", title:"→ ЖК «Любимово»", desc:"", addr:"", transit:true},
+      {time:"14:00–14:20", title:"Апартаменты", desc:"Заселение, оставляем вещи", addr:"", transit:false},
+      {time:"14:20–14:40", title:"→ Парк «Краснодар»", desc:"", addr:"", transit:true},
+      {time:"14:40–19:15", title:"Парк «Краснодар»", desc:"Долгая прогулка по парку (без Японского сада — он переносится на 2‑й день)", addr:"", transit:false},
+      {time:"19:15–20:00", title:"→ Ресторан «Краснодар»", desc:"", addr:"", transit:true},
+      {time:"20:00–21:30", title:"Ресторан «Краснодар»", desc:"Ужин + день рождения Даниила", addr:"ул. Разведчика Леонова, 4", transit:false},
+      {time:"21:30–22:00", title:"→ ТРЦ «Галерея»", desc:"", addr:"", transit:true},
+      {time:"22:00", title:"KARO", desc:"Кино", addr:"ул. Головатого, 313", transit:false},
+      {time:"после кино", title:"→ Любимово", desc:"Возвращаемся в апартаменты", addr:"", transit:true}
+    ],
+    2: [
+      {time:"09:30", title:"Апартаменты", desc:"Подъём, сборы", addr:"", transit:false},
+      {time:"10:00", title:"→ Исторический центр", desc:"", addr:"", transit:true},
+      {time:"10:00–13:00", title:"Прогулка по центру", desc:"Штампики, кофейни", addr:"", transit:false},
+      {time:"13:00–13:15", title:"→ Японский сад", desc:"", addr:"", transit:true},
+      {time:"13:15–15:45", title:"Японский сад + Kissaten", desc:"Обед по брони, спокойный осмотр всех 7 га", addr:"ул. Разведчика Леонова, 7Б", transit:false},
+      {time:"15:45–16:00", title:"→ Памятник Екатерине II", desc:"Точка сбора экскурсии — закладывайте запас, район другой", addr:"", transit:true},
+      {time:"16:00–17:30", title:"Стендап‑экскурсия", desc:"Сбор у памятника Екатерине II", addr:"Екатерининский сквер, угол ул. Красной и Постовой", transit:false},
+      {time:"17:30–19:30", title:"Свободное время", desc:"Ужин, отдых", addr:"", transit:false},
+      {time:"19:30–20:00", title:"→ Кубанская набережная", desc:"", addr:"", transit:true},
+      {time:"20:00–20:30", title:"Кубанская набережная", desc:"Вечерняя прогулка, мост Поцелуев, фото", addr:"", transit:false},
+      {time:"20:30", title:"→ Любимово", desc:"Возвращаемся в апартаменты", addr:"", transit:true}
+    ],
+    3: [
+      {time:"09:30", title:"Апартаменты", desc:"Подъём, сборы", addr:"", transit:false},
+      {time:"10:00", title:"→ Краснодар‑1", desc:"Выселяемся и едем на ЖД", addr:"", transit:true},
+      {time:"10:30–10:45", title:"Камера хранения", desc:"Оставляем вещи", addr:"", transit:false},
+      {time:"10:45–16:00", title:"Свободное время", desc:"Музеи Фелицына и Коваленко, прогулки — на выбор, без жёсткой программы", addr:"", transit:false},
+      {time:"16:00–16:30", title:"→ OZ Mall", desc:"", addr:"", transit:true},
+      {time:"16:30–19:30", title:"OZ Mall", desc:"Шопинг + игры", addr:"ул. Крылатая, 2", transit:false},
+      {time:"19:30–20:00", title:"→ Краснодар‑1", desc:"Едем обратно на вокзал", addr:"", transit:true},
+      {time:"20:00", title:"Краснодар‑1", desc:"Забираем вещи → отъезд", addr:"", transit:false}
+    ]
+  };
+
+  var defaultLuggage = {
+    dasha: ["Брюки","2 футболки","Блестящий комбинезон","2 пары трусов","2 пары носков","Лифчик","Топ","Сумочка"],
+    dania: ["Брюки","2 футболки","2 пары трусов","2 пары носков","Рюкзак"],
+    care: ["Тревел‑набор","Шампунь","Зубные щётки","Зубная паста","Дезодорант","Сухой шампунь"],
+    tech: ["Зарядники","Приставка для ТВ","Телефоны","Пауэрбанк","Штатив","Свет"],
+    docs: ["Документы","Банковские карты","Билеты","Ваучеры","Блокнот для штампов"]
+  };
+
+  function loadJSON(key, fallback){
+    try{
+      var raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    }catch(e){ return fallback; }
+  }
+  function saveJSON(key, val){
+    try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+  }
+
+  var daysData = loadJSON(DAYS_KEY, null) || JSON.parse(JSON.stringify(defaultDays));
+  var luggageData = loadJSON(LUGGAGE_KEY, null) || JSON.parse(JSON.stringify(defaultLuggage));
+
+  function saveDays(){ saveJSON(DAYS_KEY, daysData); }
+  function saveLuggage(){ saveJSON(LUGGAGE_KEY, luggageData); }
+
+  function timeRank(t){
+    var m = /(\d{1,2})[:.](\d{2})/.exec(t || '');
+    if(!m) return Infinity;
+    var h = parseInt(m[1], 10), mi = parseInt(m[2], 10);
+    return h * 60 + mi;
+  }
+
+  function sortDay(dayNum){
+    daysData[dayNum] = daysData[dayNum]
+      .map(function(s, i){ return {s: s, i: i}; })
+      .sort(function(a, b){
+        var ra = timeRank(a.s.time), rb = timeRank(b.s.time);
+        if(ra === rb) return a.i - b.i;
+        return ra - rb;
+      })
+      .map(function(x){ return x.s; });
+    saveDays();
+  }
+
+  function buildStopNode(dayNum, stop){
+    var wrap = document.createElement('div');
+    wrap.className = 'stop' + (stop.transit ? ' transit' : '');
+
+    var controls = document.createElement('div');
+    controls.className = 'stop-controls';
+
+    var timeInput = document.createElement('input');
+    timeInput.className = 'stop-time';
+    timeInput.value = stop.time;
+    timeInput.placeholder = 'время';
+    timeInput.addEventListener('input', function(){ stop.time = timeInput.value; saveDays(); });
+    timeInput.addEventListener('blur', function(){
+      sortDay(dayNum);
+      renderDay(dayNum);
+    });
+    timeInput.addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){ e.preventDefault(); timeInput.blur(); }
+    });
+
+    var transitLabel = document.createElement('label');
+    transitLabel.className = 'transit-toggle';
+    var transitCb = document.createElement('input');
+    transitCb.type = 'checkbox';
+    transitCb.checked = !!stop.transit;
+    transitCb.addEventListener('change', function(){
+      stop.transit = transitCb.checked;
+      wrap.classList.toggle('transit', stop.transit);
+      saveDays();
+    });
+    transitLabel.appendChild(transitCb);
+    transitLabel.appendChild(document.createTextNode('переезд'));
+
+    var delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'stop-del';
+    delBtn.title = 'Удалить событие';
+    delBtn.textContent = '×';
+    delBtn.addEventListener('click', function(){
+      daysData[dayNum] = daysData[dayNum].filter(function(s){ return s !== stop; });
+      saveDays();
+      renderDay(dayNum);
+    });
+
+    controls.appendChild(timeInput);
+    controls.appendChild(transitLabel);
+    controls.appendChild(delBtn);
+
+    var card = document.createElement('div');
+    card.className = 'stop-card';
+
+    var titleInput = document.createElement('input');
+    titleInput.className = 'stop-title';
+    titleInput.value = stop.title;
+    titleInput.placeholder = 'Название события';
+    titleInput.addEventListener('input', function(){ stop.title = titleInput.value; saveDays(); });
+
+    var descInput = document.createElement('input');
+    descInput.className = 'stop-desc';
+    descInput.value = stop.desc || '';
+    descInput.placeholder = 'Описание (необязательно)';
+    descInput.addEventListener('input', function(){ stop.desc = descInput.value; saveDays(); });
+
+    var addrWrap = document.createElement('div');
+    addrWrap.className = 'stop-addr-wrap';
+    var addrIcon = document.createElement('span');
+    addrIcon.className = 'addr-icon';
+    addrIcon.textContent = '⌂';
+    var addrInput = document.createElement('input');
+    addrInput.className = 'stop-addr';
+    addrInput.value = stop.addr || '';
+    addrInput.placeholder = 'Адрес (необязательно)';
+    addrInput.addEventListener('input', function(){ stop.addr = addrInput.value; saveDays(); });
+    addrWrap.appendChild(addrIcon);
+    addrWrap.appendChild(addrInput);
+
+    card.appendChild(titleInput);
+    card.appendChild(descInput);
+    card.appendChild(addrWrap);
+
+    wrap.appendChild(controls);
+    wrap.appendChild(card);
+    return wrap;
+  }
+
+  function renderDay(dayNum){
+    var container = document.getElementById('timeline-' + dayNum);
+    container.innerHTML = '';
+    daysData[dayNum].forEach(function(stop){
+      container.appendChild(buildStopNode(dayNum, stop));
+    });
+  }
+
+  [1,2,3].forEach(renderDay);
+
+  document.querySelectorAll('.add-event-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var dayNum = btn.dataset.day;
+      var newStop = {time:'', title:'Новое событие', desc:'', addr:'', transit:false};
+      daysData[dayNum].push(newStop);
+      saveDays();
+      renderDay(dayNum);
+      var container = document.getElementById('timeline-' + dayNum);
+      var lastTitle = container.querySelector('.stop:last-child .stop-title');
+      if(lastTitle){ lastTitle.focus(); lastTitle.select(); }
+    });
+  });
+
+  function renderLuggage(catKey){
+    var ul = document.getElementById('luggage-' + catKey);
+    ul.innerHTML = '';
+    luggageData[catKey].forEach(function(item, idx){
+      var li = document.createElement('li');
+      var input = document.createElement('input');
+      input.className = 'luggage-item-input';
+      input.value = item;
+      input.addEventListener('input', function(){
+        luggageData[catKey][idx] = input.value;
+        saveLuggage();
+      });
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'luggage-del';
+      del.textContent = '×';
+      del.title = 'Убрать пункт';
+      del.addEventListener('click', function(){
+        luggageData[catKey].splice(idx, 1);
+        saveLuggage();
+        renderLuggage(catKey);
+      });
+      li.appendChild(input);
+      li.appendChild(del);
+      ul.appendChild(li);
+    });
+  }
+
+  function addLuggageItem(catKey, value){
+    if(!value || !value.trim()) return;
+    luggageData[catKey].push(value.trim());
+    saveLuggage();
+    renderLuggage(catKey);
+  }
+
+  Object.keys(defaultLuggage).forEach(renderLuggage);
+
+  document.querySelectorAll('.luggage-add-btn').forEach(function(btn){
+    var cat = btn.dataset.cat;
+    var input = btn.previousElementSibling;
+    btn.addEventListener('click', function(){
+      addLuggageItem(cat, input.value);
+      input.value = '';
+      input.focus();
+    });
+    input.addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        addLuggageItem(cat, input.value);
+        input.value = '';
+      }
+    });
+  });
+
+  var resetAllBtn = document.getElementById('reset-budget');
+  if(resetAllBtn){
+    resetAllBtn.addEventListener('click', function(){
+      try{
+        localStorage.removeItem(DAYS_KEY);
+        localStorage.removeItem(LUGGAGE_KEY);
+      }catch(e){}
+    });
+  }
+})();
+</script>
 </body>
 </html>
